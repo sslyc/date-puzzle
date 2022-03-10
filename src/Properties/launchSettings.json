@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "DatePuzzle": {
+      "commandName": "Project",
+      "commandLineArgs": "-h"
+    }
+  }
+}
