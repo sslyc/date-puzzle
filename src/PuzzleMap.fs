@@ -64,7 +64,7 @@ let printMapDescription map =
         match d with
         | -100 | 100 -> ' '
         | -1 -> '_'  
-        | d when d < 14 -> "*#+&@$%8otx4v"[d]  
+        | d when d < 14 -> "*#+&@$%8otx4vd"[d]  
         | d -> 'A' + char (d - 14) 
     let infoMap = Array2D.copy map.Map
     for i in 0 .. map.SearchSpaces.Length - 1 do

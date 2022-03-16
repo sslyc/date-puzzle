@@ -7,7 +7,9 @@ open PuzzleMap
 let solveOne map (sel: seq<int>) (pieces: Piece[]) print =
 
     let printSuccess () =
-        let combined = sel |> Seq.map (fun x -> (string x)) |> Seq.reduce (fun pre x -> pre + "," + x)
+        let combined = 
+            if Seq.length sel = 0 then "this puzzle"
+            else sel |> Seq.map (fun x -> (string x)) |> Seq.reduce (fun pre x -> pre + "," + x)
         printfn ""
         printfn "= One of solutions for (%s) is =" combined
         printMap map
@@ -60,7 +62,7 @@ let solveOne map (sel: seq<int>) (pieces: Piece[]) print =
             true
         | _ -> 
             if map.Map[x, y] <> -1 then //已经填充
-                solveLoop ((x + 1) % 8) (y + ((x + 1) / 8))
+                solveLoop ((x + 1) % (map.X + 1)) (y + ((x + 1) / (map.X + 1)))
             else  //尝试填充
                 seq { 0 .. pieces.Length - 1 }
                 |> Seq.exists(fun i ->
@@ -69,7 +71,7 @@ let solveOne map (sel: seq<int>) (pieces: Piece[]) print =
                         |> List.exists (fun shape ->
                             if tryShape i shape x y then
                                 //printMap map //测试，打印中间过程
-                                let nextRsl = solveLoop ((x + 1) % 8) (y + ((x + 1) / 8))
+                                let nextRsl = solveLoop ((x + 1) % (map.X + 1)) (y + ((x + 1) / (map.X + 1)))
                                 if nextRsl then true
                                 else eraseShape i shape x y; false
                             else false)

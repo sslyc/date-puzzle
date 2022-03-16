@@ -30,6 +30,12 @@ let main args =
                   ShortAlias = ['v']
                   Type = ArgumentType.Boolean
                   ByPosition = false }
+                { Name = "print-info"
+                  Description = "Print the map and pieces configuration."
+                  LongAlias = []
+                  ShortAlias = ['p']
+                  Type = ArgumentType.Boolean
+                  ByPosition = false }
             ]
         let argsValue = Args(argsConfig).Process(args)
         //根据参数初始化配置
@@ -41,26 +47,45 @@ let main args =
                 let str = fs.ReadToEnd()
                 genMapAndPiecesWithDesc str
             | None -> genDefaultMap(), genDefaultPieces()
-        printPieces pieces
-        printMapDescription map
+
         let verify = 
             match argsValue["verify"] with
             | (Some (Boolean x)) -> x
             | _ -> false
+        let shouldPrintInfo = 
+            match argsValue["print-info"] with
+            | (Some (Boolean x)) -> x
+            | _ -> false
+        if shouldPrintInfo then
+            printPieces pieces
+            printMapDescription map
         //解题
         if not verify then //如果解决单个问题
-            printSelInfo map.SearchSpaces
-            while true do
-                printSel map.SearchSpaces
-                try
-                    let sel = readSel map.SearchSpaces
-                    //解决问题
-                    solveOne map sel pieces true |> ignore
-                with ex -> 
-                    printfn ""; 
-                    printfn "%s" ex.Message; 
-                    printfn ""
+            if map.SearchSpaces.Length = 0 then //只有一种情况
+                printfn ""
+                printfn "Proceeding..."
+                printfn ""
+                solveOne map [] pieces true |> ignore
+            else
+                printSelInfo map.SearchSpaces
+                while true do
+                    printSel map.SearchSpaces
+                    try
+                        let sel = readSel map.SearchSpaces
+                        printfn ""
+                        printfn "Proceeding..."
+                        printfn ""
+                        //解决问题
+                        solveOne map sel pieces true |> ignore
+                    with ex -> 
+                        printfn ""; 
+                        printfn "%s" ex.Message; 
+                        printfn ""
         else  //如果验证所有组合
+            printfn ""
+            printfn "Proceeding..."
+            printfn ""
+
             //递归深入层级
             let rec allAvRec sel index = 
                 if index > map.SearchSpaces.Length - 1 then 
@@ -76,11 +101,13 @@ let main args =
             //判断是否成功，None为成功
             match allAv with
             | Some sel -> 
-                let combined = sel |> Seq.map (fun x -> (string x)) |> Seq.reduce (fun pre x -> pre + "," + x)
+                let combined = 
+                    if Seq.length sel = 0 then "this puzzle"
+                    else sel |> Seq.map (fun x -> (string x)) |> Seq.reduce (fun pre x -> pre + "," + x)
             
                 printfn ""
                 printfn "None solution for (%s) " combined
                 printfn "= Combines verifying failed ="
             | _ -> printfn "= Congratulations! Every combo found the solution ="
-    with ex -> (*printfn "%s" ex.Message*) raise ex
+    with ex -> printfn "%s" ex.Message
     exitCode

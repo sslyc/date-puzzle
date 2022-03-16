@@ -131,13 +131,20 @@ let genPieces (piecesDesc: seq<#seq<int * int>>) =
 ///打印生成的积木形状，可用于测试
 let printPieces pieces =
     printfn "= Pieces Info ="
-    for piece in pieces do
+    for pieceIndex in 0 .. Seq.length pieces - 1 do
+        let piece = Seq.item pieceIndex pieces
         printfn ""
         for shape in piece.Shapes do
             for y in 0 .. shape.Y do
                 for x in 0 .. shape.X do
-                    if shape.Map[x, y] = 1 then printf "* "
-                    else printf "  "
+                    match shape.Map[x, y] with
+                    | 1 ->
+                        match pieceIndex with
+                        | d when d < 14 -> "*#+&@$%8otx4vd"[d]
+                        | d -> 'A' + char (d - 14)
+                        |> printf "%c "
+                    | _ ->
+                        printf "  "
                 printfn ""
             printfn ""
         printfn "==============="
